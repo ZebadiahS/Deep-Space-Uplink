@@ -17,8 +17,6 @@ function displayTime() {
   timeDisplay.textContent = `${hour}:${minute}:${second} ${ampm}`;
   
   const h = date.getHours();
-  const m = date.getMinutes();
-  const s = date.getSeconds();
   if (h < 23 || h >= 4) {
     notFound.style.display = "flex";
     content.style.display = "none";
