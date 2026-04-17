@@ -20,18 +20,31 @@
   <img id="earth" src="./images/earth.webp" alt="">
   <img id="mars" src="./images/mars.webp" alt="">
 
-  <section id="header">
-    <h1 id="header-title">The Night Room</h1>
+  <section id="interface">
+  <div id="input-field">
+  <div class="input-wrap" id="wrap-name">
+    <div class="scan-bar"></div>
+    <div class="bracket tl"></div><div class="bracket tr"></div>
+    <div class="bracket bl"></div><div class="bracket br"></div>
+    <input class="c-trans" id="enter-name" name="enter-name" type="text" placeholder="Name">
+  </div>
+
+  <div class="input-wrap" id="wrap-message">
+    <div class="scan-bar"></div>
+    <div class="bracket tl"></div><div class="bracket tr"></div>
+    <div class="bracket bl"></div><div class="bracket br"></div>
+    <input class="c-trans" id="message" name="send-message" type="text" placeholder="enter message here">
+  </div>
+
+  <button class="c-trans" id="send">Send</button>
+</div>
+
+  <div id="header">
+    <p id="header-title">The Night Room</p>
     <p id="time"></p>  
+  </div>
   </section>
 
-  <section id="messages"></section>
-
-  <section id="input-field">
-    <input class="c-trans" id="enter-name"  name="enter-name" type="text" placeholder="Name">
-    <input class="c-trans" id="message"  name="send-message" type="text" placeholder="enter message here">
-    <button class="c-trans" id="send" >Send</button>
-  </section>
 </main>
 
 <script src="./script.js"></script>

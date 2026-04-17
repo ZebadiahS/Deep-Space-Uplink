@@ -1,0 +1,490 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .hull {
+    background: #03010d;
+    border-radius: 12px;
+    padding: 2rem 1.8rem 2rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nebula {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 30%, rgba(80,0,160,0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 70%, rgba(40,0,120,0.3) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 40% at 50% 100%, rgba(100,0,200,0.2) 0%, transparent 60%),
+      #03010d;
+    animation: nebulaDrift 12s ease-in-out infinite alternate;
+    z-index: 0;
+  }
+
+  @keyframes nebulaDrift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    50%  { filter: hue-rotate(20deg) brightness(1.1); }
+    100% { filter: hue-rotate(-15deg) brightness(0.95); }
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0%   { opacity: 0.1; }
+    100% { opacity: var(--op); }
+  }
+
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0,0,0,0.22) 2px,
+      rgba(0,0,0,0.22) 3px
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .flicker-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    animation: screenFlicker 0.09s steps(1) infinite;
+  }
+
+  @keyframes screenFlicker {
+    0%   { background: rgba(80,0,180,0.01); }
+    15%  { background: rgba(0,0,0,0.04); }
+    30%  { background: rgba(80,0,180,0.0); }
+    55%  { background: rgba(0,0,0,0.06); }
+    70%  { background: rgba(80,0,180,0.02); }
+    85%  { background: rgba(0,0,0,0.0); }
+    100% { background: rgba(80,0,180,0.01); }
+  }
+
+  .panel {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .hud-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    color: #b06eff;
+    text-shadow: 0 0 10px #a040ff, 0 0 20px #7000cc;
+    text-transform: uppercase;
+    animation: titlePulse 3s ease-in-out infinite;
+  }
+
+  @keyframes titlePulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.75; }
+  }
+
+  .signal-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #cc44ff;
+    box-shadow: 0 0 6px #cc44ff, 0 0 14px #9900ee;
+    animation: blink 1.2s step-start infinite;
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0.1; }
+  }
+
+  .input-shell {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .bracket {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: #8833ff;
+    border-style: solid;
+    z-index: 2;
+    box-shadow: 0 0 6px #6600cc;
+  }
+  .bracket.tl { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+  .bracket.tr { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+  .bracket.bl { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+  .bracket.br { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+  .freq-bar {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(160,60,255,0.3) 15%,
+      rgba(200,80,255,0.9) 40%,
+      rgba(230,120,255,1) 50%,
+      rgba(200,80,255,0.9) 60%,
+      rgba(160,60,255,0.3) 85%,
+      transparent 100%
+    );
+    border-radius: 1px;
+    animation: freqScan 2.4s cubic-bezier(0.45,0,0.55,1) infinite;
+    z-index: 3;
+    pointer-events: none;
+    filter: blur(0.5px);
+  }
+
+  @keyframes freqScan {
+    0%   { top: 1px; opacity: 0; }
+    6%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { top: calc(100% - 3px); opacity: 0; }
+  }
+
+  .xmit-input {
+    width: 100%;
+    padding: 13px 14px 13px 44px;
+    background: rgba(8, 2, 24, 0.92);
+    border: 1px solid rgba(140,50,255,0.45);
+    border-radius: 3px;
+    color: #e0aaff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    outline: none;
+    caret-color: #dd88ff;
+    text-shadow: 0 0 8px rgba(200,100,255,0.7);
+    box-shadow:
+      0 0 0 1px rgba(100,20,200,0.2) inset,
+      0 0 20px rgba(120,0,220,0.25),
+      0 0 40px rgba(80,0,160,0.1);
+    transition: border-color 0.25s, box-shadow 0.25s;
+    animation: inputFlicker 0.14s steps(1) infinite;
+  }
+
+  @keyframes inputFlicker {
+    0%   { opacity: 1; }
+    40%  { opacity: 1; }
+    41%  { opacity: 0.95; }
+    42%  { opacity: 1; }
+    80%  { opacity: 1; }
+    81%  { opacity: 0.93; }
+    82%  { opacity: 1; }
+  }
+
+  .xmit-input:focus {
+    border-color: rgba(190,80,255,0.85);
+    box-shadow:
+      0 0 0 1px rgba(160,40,240,0.3) inset,
+      0 0 28px rgba(150,0,255,0.45),
+      0 0 50px rgba(100,0,200,0.2);
+  }
+
+  .xmit-input::placeholder {
+    color: rgba(150,80,220,0.38);
+    font-style: italic;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .icon-ring {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid #aa44ff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #aa44ff, 0 0 10px #6600cc;
+    animation: iconPulse 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #cc66ff;
+    box-shadow: 0 0 4px #cc66ff;
+  }
+
+  @keyframes iconPulse {
+    0%, 100% { opacity: 0.7; border-color: #aa44ff; }
+    50%       { opacity: 1; border-color: #ee88ff; box-shadow: 0 0 8px #cc66ff, 0 0 16px #9900ee; }
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 0 2px;
+  }
+
+  .meta-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(160,80,255,0.55);
+  }
+
+  .freq-readout {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    color: #9955ee;
+    letter-spacing: 0.08em;
+    animation: freqShift 4s steps(1) infinite;
+  }
+
+  @keyframes freqShift {
+    0%   { content: ''; }
+    0%   { color: #9955ee; }
+    33%  { color: #7733cc; }
+    66%  { color: #bb77ff; }
+    100% { color: #9955ee; }
+  }
+
+  .transmit-btn {
+    width: 100%;
+    padding: 13px 20px;
+    background: linear-gradient(180deg,
+      rgba(90,10,180,0.75) 0%,
+      rgba(60,0,140,0.85) 50%,
+      rgba(40,0,110,0.9) 100%
+    );
+    border: 1px solid rgba(160,60,255,0.65);
+    border-radius: 3px;
+    color: #ddb8ff;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 0 10px rgba(220,150,255,0.8), 0 0 20px rgba(180,80,255,0.5);
+    box-shadow:
+      0 0 16px rgba(130,0,255,0.4),
+      0 0 1px rgba(200,140,255,0.5) inset,
+      0 2px 0 rgba(0,0,0,0.6);
+    animation: btnFlicker 0.16s steps(1) infinite;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  @keyframes btnFlicker {
+    0%, 100% { opacity: 1; }
+    37%       { opacity: 0.94; }
+    38%       { opacity: 1; }
+    74%       { opacity: 0.97; }
+    75%       { opacity: 1; }
+  }
+
+  .transmit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220,160,255,0.5), transparent);
+  }
+
+  .transmit-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .transmit-btn:hover {
+    border-color: rgba(210,110,255,0.95);
+    box-shadow:
+      0 0 28px rgba(160,20,255,0.65),
+      0 0 50px rgba(120,0,220,0.3),
+      0 0 2px rgba(230,170,255,0.6) inset;
+    color: #f0d4ff;
+  }
+
+  .transmit-btn:active { transform: scale(0.985); }
+
+  .boost-sweep {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(200,130,255,0.15), transparent);
+    animation: sweep 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sweep {
+    0%   { left: -60%; }
+    100% { left: 160%; }
+  }
+
+  .hud-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding: 0 2px;
+  }
+
+  .hud-pip {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .pip {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #6622bb;
+    box-shadow: 0 0 4px #6622bb;
+    animation: pipAnim var(--pd) ease-in-out infinite alternate;
+  }
+
+  @keyframes pipAnim {
+    0%   { background: #330066; box-shadow: none; }
+    100% { background: #cc44ff; box-shadow: 0 0 6px #cc44ff; }
+  }
+
+  .hud-coords {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: rgba(140,60,220,0.4);
+  }
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Spaceship CRT transmission input and button</h2>
+
+<div class="hull">
+  <div class="nebula"></div>
+  <div class="stars" id="stars"></div>
+  <div class="scanlines"></div>
+  <div class="flicker-overlay"></div>
+
+  <div class="panel">
+    <div class="hud-header">
+      <span class="hud-title">deep-space uplink</span>
+      <div class="signal-dot"></div>
+    </div>
+
+    <div class="input-shell">
+      <div class="bracket tl"></div>
+      <div class="bracket tr"></div>
+      <div class="bracket bl"></div>
+      <div class="bracket br"></div>
+      <div class="freq-bar"></div>
+      <div class="input-icon">
+        <div class="icon-ring"><div class="icon-dot"></div></div>
+      </div>
+      <input
+        class="xmit-input"
+        type="text"
+        placeholder="enter transmission..."
+        spellcheck="false"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="meta-row">
+      <span class="meta-tag">CH-7 &nbsp;/&nbsp; ENC:AES-256</span>
+      <span class="freq-readout" id="freq">437.525 MHz</span>
+    </div>
+
+    <button class="transmit-btn">
+      <div class="boost-sweep"></div>
+      transmit
+    </button>
+
+    <div class="hud-footer">
+      <div class="hud-pip">
+        <div class="pip" style="--pd:0.9s"></div>
+        <div class="pip" style="--pd:1.3s"></div>
+        <div class="pip" style="--pd:1.7s"></div>
+        <div class="pip" style="--pd:2.1s"></div>
+        <div class="pip" style="--pd:1.5s"></div>
+      </div>
+      <span class="hud-coords" id="coords">46.2°N  &nbsp;  291.7°W  &nbsp;  ALT: 412km</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 55; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() < 0.15 ? 2 : 1;
+    const op = (0.3 + Math.random() * 0.7).toFixed(2);
+    const dur = (1.5 + Math.random() * 3).toFixed(1) + 's';
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${dur};--op:${op};animation-delay:${(Math.random()*3).toFixed(1)}s`;
+    stars.appendChild(s);
+  }
+
+  const freqs = ['437.525 MHz','412.880 MHz','459.100 MHz','401.375 MHz','443.750 MHz'];
+  const coords = [
+    '46.2°N  &nbsp;  291.7°W  &nbsp;  ALT: 412km',
+    '51.8°N  &nbsp;  303.2°W  &nbsp;  ALT: 409km',
+    '44.1°N  &nbsp;  288.5°W  &nbsp;  ALT: 415km',
+  ];
+  let fi = 0, ci = 0;
+  setInterval(() => {
+    fi = (fi + 1) % freqs.length;
+    document.getElementById('freq').textContent = freqs[fi];
+  }, 3200);
+  setInterval(() => {
+    ci = (ci + 1) % coords.length;
+    document.getElementById('coords').innerHTML = coords[ci];
+  }, 4700);
+</script>
