@@ -30,15 +30,15 @@ function displayTime() {
   timeDisplay.textContent = `${hour}:${minute}:${second} ${ampm}`;
   
   const h = date.getHours();
-  // if (h >= 23 || h < 4) {
-  //   document.title = "Deep Space Uplink";
-  //   notFound.style.display = "none";
-  //   content.style.display = "flex";
-  // } else {
-  //   document.title = "page not found";
-  //   notFound.style.display = "flex";
-  //   content.style.display = "none";
-  // }
+  if (h >= 23 || h < 4) {
+    document.title = "Deep Space Uplink";
+    notFound.style.display = "none";
+    content.style.display = "flex";
+  } else {
+    document.title = "page not found";
+    notFound.style.display = "flex";
+    content.style.display = "none";
+  }
 };
 
 displayTime();
