@@ -156,6 +156,12 @@ sendButton.addEventListener('click', async () => {
 
   if (!text || !Name) return;
 
+  const messageSent = document.getElementById('message-sent');
+  messageSent.classList.add('visible');
+    setTimeout(() => {
+      messageSent.classList.remove('visible');
+    }, 2000);
+
   try {
     await fetch(WEB_APP_URL, {
       method: 'POST',
@@ -170,10 +176,6 @@ sendButton.addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to send:', err);
   }
-});
-
-messageInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendButton.click();
 });
 
 // ── Fetch Messages from Google Sheets ────────────────────────────────
@@ -201,68 +203,120 @@ const fetchMessages = async () => {
 };
 
 const starPositions = new Map();
+const existingStars = new Map();
+
+const previousMessageCounts = new Map();
 
 const displayMessages = (messages) => {
   const container = document.getElementById('content');
 
-  container.querySelectorAll('.message-star').forEach(el => el.remove());
+  const currentNames = new Set();
 
   const tooltip = document.getElementById('star-tooltip');
   const closeBtn = document.getElementById('close');
 
   closeBtn.addEventListener('click', () => {
-    hoverCount = 0;
-    if (hoverCount === 0) startMessagePolling();
     tooltip.classList.remove('visible');
   });
 
   messages.forEach(({ timestamp, name, messages }) => {
+    currentNames.add(name);
 
     if (!starPositions.has(name)) {
       starPositions.set(name, {
         x: Math.random() * 60 + 20,
         y: Math.random() * 60 + 20,
         assetNum: Math.floor(Math.random() *8) + 1,
-        assetSize: Math.floor(Math.random() * 51) + 30,
+        assetSize: Math.floor(Math.random() * 61) + 30,
       });
     }
 
     const { x, y, assetNum, assetSize } = starPositions.get(name);
+    const messageCount = messages?.length || 0;
+    const previousCount = previousMessageCounts.get(name) || 0;
+    const hasNewMessages = messageCount > previousCount;
+    previousMessageCounts.set(name, messageCount);
 
-    const star = document.createElement('div');
-    star.className = 'message-star';
-    star.style.left = `${x}%`;
-    star.style.top = `${y}%`;
+    const brackets = hasNewMessages
+      ? `<div id="alert" class="bracket tl"></div><div id="alert" class="bracket tr"></div><div id="alert" class="bracket bl"></div><div id="alert" class="bracket br"></div>`
+      : `<div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>`;
 
-    star.innerHTML = `
-      <div class="bracket tl"></div><div class="bracket tr"></div>
-      <div class="bracket bl"></div><div class="bracket br"></div>
-      <img src="./images/slice${assetNum}.webp" class="star-asset" alt="★" style="width: ${assetSize}px;">
-    `;
+    let star = existingStars.get(name);
 
-    const messageLines = (messages || [])
-      .map((msg, index) => {
-        const isLast = index === (messages.length - 1);
-        return `
-        <div class="message-entry">
-          <p class="star-message">${escapeHTML(msg)}</p>
-          ${isLast ? `<p class="star-time">${new Date(timestamp).toLocaleString()}</p>` : ''}
-        </div>
+    if (!star) {
+      star = document.createElement('div');
+      star.className = 'message-star';
+      star.style.left = `${x}%`;
+      star.style.top = `${y}%`;
+
+      star.innerHTML = `
+        ${brackets}
+        <img src="./images/slice${assetNum}.webp" class="star-asset" alt="★" style="width: ${assetSize}px;">
       `;
-      })
-      .join('');
 
-    star.addEventListener('click', () => {
-      hoverCount = 1;
-      stopMessagePolling();
-      const starNameElement = tooltip.querySelector('.star-name');
-      const starDetails = tooltip.querySelector('.star-details');
-      if (starNameElement) starNameElement.textContent = escapeHTML(name);
-      if (starDetails) starDetails.innerHTML = messageLines;
-      tooltip.classList.add('visible');
-    });
+      const messageLines = (messages || [])
+        .map((msg, index) => {
+          const isLast = index === (messages.length - 1);
+          return `
+          <div class="message-entry">
+            <p class="star-message">${escapeHTML(msg)}</p>
+            ${isLast ? `<p class="star-time">${new Date(timestamp).toLocaleString()}</p>` : ''}
+          </div>
+        `;
+        })
+        .join('');
 
-    container.appendChild(star);
+      star.addEventListener('click', () => {
+        stopMessagePolling();
+        const starNameElement = tooltip.querySelector('.star-name');
+        const starDetails = tooltip.querySelector('.star-details');
+        if (starNameElement) starNameElement.textContent = escapeHTML(name);
+        if (starDetails) starDetails.innerHTML = messageLines;
+        tooltip.classList.add('visible');
+        star.querySelectorAll('#alert').forEach(el => el.removeAttribute('id'));
+      });
+
+      container.appendChild(star);
+      existingStars.set(name, star);
+    } else {
+      if (hasNewMessages) {
+        star.innerHTML = `
+          ${brackets}
+          <img src="./images/slice${assetNum}.webp" class="star-asset" alt="★" style="width: ${assetSize}px;">
+        `;
+      }
+
+      const messageLines = (messages || [])
+        .map((msg, index) => {
+          const isLast = index === (messages.length - 1);
+          return `
+          <div class="message-entry">
+            <p class="star-message">${escapeHTML(msg)}</p>
+            ${isLast ? `<p class="star-time">${new Date(timestamp).toLocaleString()}</p>` : ''}
+          </div>
+        `;
+        })
+        .join('');
+
+      star.onclick = () => {
+        stopMessagePolling();
+        const starNameElement = tooltip.querySelector('.star-name');
+        const starDetails = tooltip.querySelector('.star-details');
+        if (starNameElement) starNameElement.textContent = escapeHTML(name);
+        if (starDetails) starDetails.innerHTML = messageLines;
+        tooltip.classList.add('visible');
+        star.querySelectorAll('#alert').forEach(el => el.removeAttribute('id'));
+      };
+    }
+  });
+
+  existingStars.forEach((star, name) => {
+    if (!currentNames.has(name)) {
+      star.remove();
+      existingStars.delete(name);
+      starPositions.delete(name);
+      previousMessageCounts.delete(name);
+    }
   });
 };
 
@@ -274,7 +328,6 @@ const escapeHTML = (str) => {
 
 // ── Poll for new messages every 10 seconds ────────────────────────────────
 let messagePollInterval = null;
-let hoverCount = 0;
 
 const startMessagePolling = () => {
   if (!messagePollInterval) {
