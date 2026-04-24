@@ -267,7 +267,6 @@ const displayMessages = (messages) => {
         .join('');
 
       star.addEventListener('click', () => {
-        stopMessagePolling();
         const starNameElement = tooltip.querySelector('.star-name');
         const starDetails = tooltip.querySelector('.star-details');
         if (starNameElement) starNameElement.textContent = escapeHTML(name);
@@ -299,7 +298,6 @@ const displayMessages = (messages) => {
         .join('');
 
       star.onclick = () => {
-        stopMessagePolling();
         const starNameElement = tooltip.querySelector('.star-name');
         const starDetails = tooltip.querySelector('.star-details');
         if (starNameElement) starNameElement.textContent = escapeHTML(name);
@@ -326,21 +324,7 @@ const escapeHTML = (str) => {
   return div.innerHTML;
 };
 
-// ── Poll for new messages every 10 seconds ────────────────────────────────
-let messagePollInterval = null;
 
-const startMessagePolling = () => {
-  if (!messagePollInterval) {
-    messagePollInterval = setInterval(fetchMessages, 10000);
-  }
-};
-
-const stopMessagePolling = () => {
-  if (messagePollInterval) {
-    clearInterval(messagePollInterval);
-    messagePollInterval = null;
-  }
-};
 
 fetchMessages();
-startMessagePolling();
+setInterval(fetchMessages, 10000);
