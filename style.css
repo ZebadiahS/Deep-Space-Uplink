@@ -89,15 +89,17 @@ body {
     height: 200px;
     border-radius: 50%;
     z-index: 0;
+    animation: moon 300s linear infinite;
   }
 
   #mars {
-    position: fixed;
+    position: absolute;
     top: 60%;
     right: -10%;
     width: 600px;
     height: 600px;
     border-radius: 50%;
+    animation: planetRotate 800s linear infinite;
   }
 
   #earth {
@@ -106,7 +108,30 @@ body {
     left: 0;
     height: 140%;
     z-index: 1;
+    animation: planetMove 20s ease-in-out infinite;
   }
+
+  @keyframes planetMove {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-4px, -5px); }
+    50% { transform: translate(0, -10px); }
+    75% { transform: translate(-10px, -5px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  @keyframes planetRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes moon {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-4px -5px) rotate(-90deg); }
+    50% { transform: translate(0, -10px) rotate(-180deg); }
+    75% { transform: translate(-10px, -5px) rotate(-270deg); }
+    100% { transform: translate(0, 0) rotate(-360deg); }
+  }
+
 
 /*** main ***/
 main{
